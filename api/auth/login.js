@@ -4,7 +4,7 @@ export default async function handler(req) {
   const url = new URL(req.url);
   const state = crypto.randomUUID();
   const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_id: (process.env.GOOGLE_CLIENT_ID || "").trim(),
     redirect_uri: url.origin + "/api/auth/callback",
     response_type: "code",
     scope: "openid email profile",

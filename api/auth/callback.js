@@ -27,19 +27,23 @@ export default async function handler(req) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       code: code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      client_id: (process.env.GOOGLE_CLIENT_ID || "").trim(),
+      client_secret: (process.env.GOOGLE_CLIENT_SECRET || "").trim(),
       redirect_uri: url.origin + "/api/auth/callback",
       grant_type: "authorization_code"
     })
   });
-  if (!r.ok) return denied("Google sign-in failed. Please try again.");
+  if (!r.ok) {
+    let reason = "";
+    try { const e = await r.json(); reason = (e.error || "") + (e.error_description ? ": " + e.error_description : ""); } catch (x) {}
+    return denied("Google sign-in failed. Please try again." + (reason ? "<br><br><code style=\"color:#9ce704\">" + reason.replace(/[<>&]/g, "") + "</code>" : ""));
+  }
   const { id_token } = await r.json();
   let claims = {};
   try { claims = JSON.parse(fromB64u(id_token.split(".")[1])); } catch (e) {}
 
   const email = String(claims.email || "");
-  if (claims.aud !== process.env.GOOGLE_CLIENT_ID || !claims.email_verified || claims.hd !== "bamboo-card.com" || !/@bamboo-card\.com$/i.test(email)) {
+  if (claims.aud !== (process.env.GOOGLE_CLIENT_ID || "").trim() || !claims.email_verified || claims.hd !== "bamboo-card.com" || !/@bamboo-card\.com$/i.test(email)) {
     return denied("Only @bamboo-card.com accounts can open this page." + (email ? " You signed in as " + email + "." : ""));
   }
 
