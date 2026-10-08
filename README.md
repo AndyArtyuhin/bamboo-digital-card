@@ -1,35 +1,19 @@
-# Bamboo Card — сервис визиток
+# Bamboo Digital Business Cards
 
-Статический сайт: один файл `index.html` (всё внутри — шрифты, ассеты, данные, генерация QR).
+Static page + Google sign-in restricted to @bamboo-card.com.
 
-## Деплой на Vercel
+## Files
+- index.html — the app
+- middleware.js — blocks all pages without a valid session
+- api/auth/login.js, callback.js, logout.js — Google OAuth
+- vercel.json, package.json — config
 
-Вариант 1 — через веб-интерфейс (без установки):
-1. Открыть vercel.com → **Add New… → Project → Deploy without Git**.
-2. Перетащить папку `site/` целиком.
-3. Deploy. Ссылка вида `https://<name>.vercel.app` появится сразу.
+## Environment variables (Vercel → Settings → Environment Variables)
+- GOOGLE_CLIENT_ID
+- GOOGLE_CLIENT_SECRET
+- SESSION_SECRET — any random string, 30+ characters
 
-Вариант 2 — CLI:
-```
-npm i -g vercel
-cd site
-vercel --prod
-```
-На вопрос про framework — **Other**, output directory — текущая папка.
-
-## Пароль
-
-Вход по паролю `BambooCard` (интерфейс на английском, проверка на клиенте, сессия до закрытия вкладки).
-Чтобы сменить: в Omelette открыть `Bamboo Card Service.dc.html` → Tweaks → `password`, затем пересобрать `site/index.html`.
-
-Важно: пароль в клиентском коде виден в исходниках страницы. Это защита от случайных посетителей, не от целенаправленного доступа. Если нужна настоящая защита — включить на Vercel **Deployment Protection → Password** (план Pro) или поставить basic-auth через Edge Middleware.
-
-## Что умеет
-
-- Просмотр всех карточек (70 сотрудников), поиск по имени/роли/e-mail.
-- Скачивание отдельной карточки PNG 1020×1720.
-- Скачивание архива `bamboo-cards.zip` со всеми (или отфильтрованными) карточками.
-- Добавление сотрудника: имя, должность, e-mail, телефон → карточка и vCard-QR создаются сразу, PNG скачивается автоматически.
-  Без личного телефона подставляется офисный +971 4 553 9410.
-- Добавленные сотрудники хранятся в localStorage браузера (у каждого пользователя свои).
-  Чтобы они попали в общий список для всех — прислать данные, добавлю в исходный список и пересоберу сайт.
+## Google OAuth client
+- Authorized JavaScript origins: https://<your-site>.vercel.app
+- Authorized redirect URIs: https://<your-site>.vercel.app/api/auth/callback
+- Audience: Internal
