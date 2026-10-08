@@ -24,5 +24,5 @@ export default async function middleware(req) {
       } catch (e) {}
     }
   }
-  return Response.redirect(new URL("/api/auth/login", req.url), 302);
+  return Response.redirect(new URL("/api/auth/signin", req.url), 302);
 }
